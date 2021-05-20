@@ -15,6 +15,18 @@ async def on_message(message):
     return
   
   if message.content.startswith('!viki'):
-    await message.channel.send(f'Hello, {message.author}')
+    command = message.content.split(' ', 1)[1]
+    if len(command) == 0:
+      await message.channel.send(f'Hello, {message.author}')
+    if command.startswith('sql'):
+      try:
+        sql = command.split(' ', 1)[1]
+        cursor = cnx.cursor()
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        await message.channel.send(f"`{str(rows)[0:1998]}`")
+      except Exception as e:
+        await message.channel.send(f"`{e}`")
+
 
 client.run(TOKEN)
