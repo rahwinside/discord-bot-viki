@@ -1,5 +1,6 @@
 import discord
-import os
+from settings import TOKEN
+from mysql_config import cnx
 
 client = discord.Client()
 
@@ -16,4 +17,4 @@ async def on_message(message):
   if message.content.startswith('!viki'):
     await message.channel.send(f'Hello, {message.author}')
 
-client.run(os.environ['TOKEN'])
+client.run(TOKEN)
