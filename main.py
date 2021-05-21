@@ -64,7 +64,7 @@ async def on_message(message):
             # !viki get-info <tag>
             if command.startswith('get-info'):
                 try:
-                    tag = command.split(' ', 1)[1].lstrip().rstrip()
+                    tag = command.split(' ', 1)[1].lstrip('"').rstrip('"')
                     sql = f"SELECT data FROM viki.info WHERE tag = '{tag}'"
                     cursor = mysql_cnx.cursor()
                     cursor.execute(sql)
@@ -81,11 +81,11 @@ async def on_message(message):
                 except Exception as e:
                     await message.channel.send(f"`{e}`")
 
-            # !viki store-info <"tag"> <"data">
+            # !viki store-info <tag> <data>
             if command.startswith('store-info'):
                 try:
-                    tag = command.split(' ')[1].lstrip('"').rstrip('"')
-                    data = command.split(' ')[2].lstrip('"').rstrip('"')
+                    tag = command.split(' ', 1)[1].split(' ')[0].lstrip('"').rstrip('"')
+                    data = command.split(' ', 1)[1].split(' ', 1)[1].lstrip('"').rstrip('"')
                     sql = f"INSERT INTO viki.info (tag, data, createdBy) VALUES ('{tag}', '{data}', '{message.author}')"
                     cursor = mysql_cnx.cursor()
                     cursor.execute(sql)
