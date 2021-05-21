@@ -152,9 +152,10 @@ async def on_message(message):
                                 embed = discord.Embed()
                                 for key, value in row.items():
                                     key = camel_convert.sub(' ', key).title()
-                                    embed.add_field(name = key, value = value)
-                                
-                                embed.set_author(name = "V.I.K.I. - User Profile", url="https://github.com/rahwinside/discord-bot-viki")
+                                    embed.add_field(name=key, value=value)
+
+                                embed.set_author(
+                                    name="V.I.K.I. - User Profile", url="https://github.com/rahwinside/discord-bot-viki")
                                 await message.channel.send(embed=embed)
 
                     if count == 0:
