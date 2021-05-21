@@ -54,9 +54,10 @@ async def on_message(message):
                     cursor = mysql_cnx.cursor()
                     cursor.execute(sql)
                     rows = cursor.fetchall()
-                    out = pd.DataFrame(rows).to_string(index=False, header=False)
+                    out = pd.DataFrame(rows).to_string(
+                        index=False, header=False)
                     cursor.close()
-                    
+
                     if len(rows) == 0:
                         out = "No tags exist."
 
@@ -88,8 +89,10 @@ async def on_message(message):
             # !viki store-info <tag> <data>
             if command.startswith('store-info'):
                 try:
-                    tag = command.split(' ', 1)[1].split(' ')[0].lstrip('"').rstrip('"')
-                    data = command.split(' ', 1)[1].split(' ', 1)[1].lstrip('"').rstrip('"')
+                    tag = command.split(' ', 1)[1].split(
+                        ' ')[0].lstrip('"').rstrip('"')
+                    data = command.split(' ', 1)[1].split(
+                        ' ', 1)[1].lstrip('"').rstrip('"')
                     sql = f"INSERT INTO viki.info (tag, data, createdBy) VALUES ('{tag}', '{data}', '{message.author}')"
                     cursor = mysql_cnx.cursor()
                     cursor.execute(sql)
@@ -106,8 +109,10 @@ async def on_message(message):
             # !viki update-info <tag> <data>
             if command.startswith('update-info'):
                 try:
-                    tag = command.split(' ', 1)[1].split(' ')[0].lstrip('"').rstrip('"')
-                    data = command.split(' ', 1)[1].split(' ', 1)[1].lstrip('"').rstrip('"')
+                    tag = command.split(' ', 1)[1].split(
+                        ' ')[0].lstrip('"').rstrip('"')
+                    data = command.split(' ', 1)[1].split(
+                        ' ', 1)[1].lstrip('"').rstrip('"')
                     sql = f"UPDATE viki.info SET data = '{data}', modifiedBy = '{message.author}' WHERE tag = '{tag}'"
                     cursor = mysql_cnx.cursor()
                     cursor.execute(sql)
@@ -118,8 +123,43 @@ async def on_message(message):
                 except Exception as e:
                     await message.channel.send(f"`Error: {e}`")
 
+            # !viki search-user <name/phone/etc...>
+            if command.startswith('search-user'):
+                try:
+                    keyword = command.split(' ', 1)[1].split(' ')[
+                        0].lstrip('"').rstrip('"').lower()
+                    sql = "SELECT * FROM viki.members"
+                    cursor = mysql_cnx.cursor()
+                    cursor.execute(sql)
+                    rows = cursor.fetchall()
+                    fields = [i[0] for i in cursor.description]
+
+                    out_list = []
+
+                    if len(rows) == 0:
+                        out = "Table empty!"
+
+                    else:
+                        for row in rows:
+                            if str(row).lower().find(keyword) == -1:
+                                pass
+                            else:
+                                out_list.append(row)
+
+                    if len(out_list) == 0:
+                        out = "No users found."
+
+                    else:
+                        out = pd.DataFrame(out_list, columns = fields)
+                    cursor.close()
+
+                    await message.channel.send(f"`{out[0:1998]}`")
+
+                except Exception as e:
+                    await message.channel.send(f"`{e}`")
+
         mysql_cnx.close()
-    
+
     except:
         await message.channel.send(f"`Service unavailable.`")
 
