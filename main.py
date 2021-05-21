@@ -56,6 +56,10 @@ async def on_message(message):
                     rows = cursor.fetchall()
                     out = pd.DataFrame(rows).to_string(index=False, header=False)
                     cursor.close()
+                    
+                    if len(rows) == 0:
+                        out = "No tags exist."
+
                     await message.channel.send(f"`{out[0:1998]}`")
 
                 except Exception as e:
@@ -105,7 +109,6 @@ async def on_message(message):
                     tag = command.split(' ', 1)[1].split(' ')[0].lstrip('"').rstrip('"')
                     data = command.split(' ', 1)[1].split(' ', 1)[1].lstrip('"').rstrip('"')
                     sql = f"UPDATE viki.info SET data = '{data}', modifiedBy = '{message.author}' WHERE tag = '{tag}'"
-                    print(sql)
                     cursor = mysql_cnx.cursor()
                     cursor.execute(sql)
                     cursor.close()
