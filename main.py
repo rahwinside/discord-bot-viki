@@ -99,6 +99,22 @@ async def on_message(message):
                 except Exception as e:
                     await message.channel.send(f"`Error: {e}`")
 
+            # !viki update-info <tag> <data>
+            if command.startswith('update-info'):
+                try:
+                    tag = command.split(' ', 1)[1].split(' ')[0].lstrip('"').rstrip('"')
+                    data = command.split(' ', 1)[1].split(' ', 1)[1].lstrip('"').rstrip('"')
+                    sql = f"UPDATE viki.info SET data = '{data}', modifiedBy = '{message.author}' WHERE tag = '{tag}'"
+                    print(sql)
+                    cursor = mysql_cnx.cursor()
+                    cursor.execute(sql)
+                    cursor.close()
+                    mysql_cnx.commit()
+                    await message.channel.send(f"`{tag} has been updated successfully.`")
+
+                except Exception as e:
+                    await message.channel.send(f"`Error: {e}`")
+
         mysql_cnx.close()
     
     except:
