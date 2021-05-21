@@ -1,8 +1,12 @@
 import discord
+import json
 import pandas as pd
+import re
 from settings import TOKEN
 
 import mysql.connector
+
+camel_convert = re.compile(r'(?<!^)(?=[A-Z])')
 
 client = discord.Client()
 
@@ -129,31 +133,35 @@ async def on_message(message):
                     keyword = command.split(' ', 1)[1].split(' ')[
                         0].lstrip('"').rstrip('"').lower()
                     sql = "SELECT * FROM viki.members"
-                    cursor = mysql_cnx.cursor()
+                    cursor = mysql_cnx.cursor(dictionary=True)
                     cursor.execute(sql)
                     rows = cursor.fetchall()
-                    fields = [i[0] for i in cursor.description]
 
-                    out_list = []
+                    count = 0
 
                     if len(rows) == 0:
                         out = "Table empty!"
+                        await message.channel.send(f"`{out[0:1998]}`")
 
                     else:
                         for row in rows:
                             if str(row).lower().find(keyword) == -1:
                                 pass
                             else:
-                                out_list.append(row)
+                                count += 1
+                                embed = discord.Embed()
+                                for key, value in row.items():
+                                    key = camel_convert.sub(' ', key).title()
+                                    embed.add_field(name = key, value = value)
+                                
+                                embed.set_author(name = "V.I.K.I. - User Profile", url="https://github.com/rahwinside/discord-bot-viki")
+                                await message.channel.send(embed=embed)
 
-                    if len(out_list) == 0:
+                    if count == 0:
                         out = "No users found."
+                        await message.channel.send(f"`{out[0:1998]}`")
 
-                    else:
-                        out = pd.DataFrame(out_list, columns = fields)
                     cursor.close()
-
-                    await message.channel.send(f"`{out[0:1998]}`")
 
                 except Exception as e:
                     await message.channel.send(f"`{e}`")
